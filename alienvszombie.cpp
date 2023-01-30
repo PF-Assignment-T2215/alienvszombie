@@ -1,90 +1,25 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
+#include <cstdlib> 
+#include <ctime>   
+#include <iomanip> //set width(w)
 using namespace std;
 
-int inputX()
+
+void setObject(vector<vector<char>>& map_, int x, int y, char object) 
 {
-    int x;
-    cout << "How many columns?: ";
-    cin >> x;
-    while (x % 2 == 0)
+    map_[y - 1][x - 1] = object; //set coordinate for object
+}
+
+void randomitem(vector<vector<char>>& map_, int x_, int y_) //for inserting objects in game board
+{
+   
+    char objects[] = {' ', ' ', ' ', ' ', ' ', ' ', 'p', 'h', 'r', '<', '>', '^', 'v'};
+    int noOfObjects = 13; 
+   
+    for (int i = 0; i < y_; ++i) //for row
     {
-        cout << x << "Please input odd numbers only" << endl;
-    }
-    return x;
-}
-
-int inputY()
-{
-    int y;
-    cout << "How many rows?: ";
-    cin >> y;
-    if (y % 2 == 0)
-        cout << y << "Please input odd numbers only";
-    else
-        return y;
-    // return  y;
-}
-
-class GameBoard
-{
-private:
-    vector<vector<char>> map_;
-    int dimX_, dimY_;
-
-public:
-    GameBoard(int dimX = inputX(), int dimY = inputY());
-    void init(int dimX, int dimY);
-    void display() const;
-
-    int getDimX() const;
-    int getDimY() const;
-
-    char getObject(int x, int y) const;
-};
-
-char GameBoard::getObject(int x, int y) const
-{
-    return map_[x][y];
-}
-
-int GameBoard::getDimX() const
-{
-    return dimX_;
-}
-
-int GameBoard::getDimY() const
-{
-    return dimY_;
-}
-
-GameBoard::GameBoard(int dimX, int dimY)
-{
-    init(dimX, dimY);
-}
-
-void GameBoard::init(int dimX, int dimY)
-{
-    dimX_ = dimX;
-    dimY_ = dimY;
-
-    char objects[] = {' ', ' ', ' ', ' ', ' ', ' ', 'p', 'h', 'r', '^', 'v', '>', '<'};
-    int noOfObjects = 13;
-
-    map_.resize(dimY_);
-    for (int i = 0; i < dimY_; ++i)
-
-    {
-        map_[i].resize(dimX_);
-    }
-
-    for (int i = 0; i < dimY_; ++i)
-    {
-        for (int j = 0; j < dimX_; ++j)
+        for (int j = 0; j < x_; ++j) //for column
         {
             int objNo = rand() % noOfObjects;
             map_[i][j] = objects[objNo];
@@ -92,25 +27,47 @@ void GameBoard::init(int dimX, int dimY)
     }
 }
 
-void GameBoard::display() const
+void size(int& x_, int& y_) //set size for column and row 
 {
+    bool size = true;
+    while (size)
+    {
+        cout << "How many columns?: ";
+        cin >> x_;
+        cout << endl;
+        cout << "How many rows?: ";
+        cin >> y_;
+        cout << endl;
 
+        if ((x_ % 2 == 0 || y_ % 2 == 0)) //when even number entered
+        {
+            cout << "Please input odd numbers only" << endl;
+        }
+        else
+        {
+            size = false;
+        }
+    }
+}
+
+void displayboard(vector<vector<char>>& map_, int x_, int y_) //displayinig game board layout
+{
     cout << "  --++--++--++--++--++--++--++--+ " << endl;
     cout << "        = Alien VS Zombie =       " << endl;
     cout << "  --++--++--++--++--++--++--++--+ " << endl;
 
-    for (int i = 0; i < dimY_; ++i)
+    for (int i = 0; i < y_; ++i)
     {
         cout << "  ";
-        for (int j = 0; j < dimX_; ++j)
+        for (int j = 0; j < x_; ++j)
         {
             cout << "+-";
         }
         cout << "+" << endl;
 
-        cout << setw(2) << (dimY_ - i);
+        cout << setw(2) << (y_ - i);
 
-        for (int j = 0; j < dimX_; ++j)
+        for (int j = 0; j < x_; ++j)
         {
             cout << "|" << map_[i][j];
         }
@@ -118,14 +75,14 @@ void GameBoard::display() const
     }
 
     cout << "  ";
-    for (int j = 0; j < dimX_; ++j)
+    for (int j = 0; j < x_; ++j)
     {
         cout << "+-";
     }
     cout << "+" << endl;
 
     cout << "  ";
-    for (int j = 0; j < dimX_; ++j)
+    for (int j = 0; j < x_; ++j)
     {
         int digits = (j + 1) / 10;
         cout << " ";
@@ -136,7 +93,7 @@ void GameBoard::display() const
     }
     cout << endl;
     cout << "  ";
-    for (int j = 0; j < dimX_; ++j)
+    for (int j = 0; j < x_; ++j)
     {
         cout << " " << (j + 1) % 10;
     }
@@ -144,18 +101,66 @@ void GameBoard::display() const
          << endl;
 }
 
-void dispboard()
-{
-    GameBoard GameBoard;
-    GameBoard.display();
+
+void movealien(vector<vector<char>>& map_, int& x, int& y, int x_, int y_, char alien) //for alien movement
+{  
+    char space = ' ';
+    string option;
+    cout << " up/down/left/right -> "; //ask user to control movemnt through these command
+    cin >> option;
+
+    if (option == "up")
+    {
+        setObject(map_,x,y, space);
+        setObject(map_, x, y - 1, alien);
+        y = y - 1;
+    }
+    else if (option == "down")
+    {
+        setObject(map_,x,y, space);
+        setObject(map_, x, y + 1, alien);
+        y = y + 1;
+    }
+    else if (option == "right")
+    {
+        setObject(map_,x,y, space);
+        setObject(map_, x + 1, y, alien);
+        x = x + 1;
+    }
+    else if (option == "left")
+    {  
+        setObject(map_,x,y, space);
+        setObject(map_, x - 1, y, alien);
+        x = x - 1;
+    }
 }
 
 int main()
 {
-    // int getDimX = inputX(); // Takes what the return statement gives
-    // int getDimY = inputY();
-    srand(time(NULL));
-    // return r, c;
+    srand(1); // use this for fixed map_ during testing, 'random' placement
+    vector<vector<char>> map_; //declare variable(map_) as vector
+    
+    int x, y;
+    int x_, y_;
+    char alien = 'A';
 
-    dispboard();
+    size(x_, y_); //set vector size
+
+    map_.resize(y_); // create empty rows(the vectors)
+    for (int i = 0; i < y_; ++i)
+    {
+        map_[i].resize(x_); // resize each row
+    }
+
+    x = rand() % x_ + 1; //random coordinate for objects
+    y = rand() % y_ + 1;
+
+    randomitem(map_, x_, y_); //call function for placement
+    //setObject(map_, x, y, alien); //alien placement
+    map_ [x_/2+1] [y_/2-1] = alien; ////alien placement at centre
+    while (true)
+    {
+        displayboard(map_, x_, y_);
+        movealien(map_, x, y, x_, y_, alien );
+    }
 }
